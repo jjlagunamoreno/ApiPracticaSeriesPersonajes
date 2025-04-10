@@ -11,33 +11,30 @@ string connectionString = builder.Configuration.GetConnectionString("SqlAzure");
 builder.Services.AddDbContext<SeriesContext>(options =>
     options.UseSqlServer(connectionString));
 
-// CONTROLADORES Y SWAGGER
+// CONTROLADORES Y DOCUMENTACIÓN OPENAPI
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "Api Personajes",
-        Description = "Api CRUD Personajes de Series",
+        Title = "API Personajes",
+        Description = "Documentación OpenAPI 3.0 para la API de Series y Personajes",
         Version = "v1"
     });
 });
 
 var app = builder.Build();
 
-// ACTIVA SWAGGER SOLO EN DESARROLLO
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(options =>
-    {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Api Personajes");
-        options.RoutePrefix = ""; // Swagger se muestra en la raíz "/"
-    });
-}
+// GENERA SOLO EL DOCUMENTO OPENAPI (SIN UI)
+app.UseSwagger(); // Esto genera /swagger/v1/swagger.json
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+
+app.UseStaticFiles();
+app.MapFallbackToFile("/redoc.html");
+
 app.Run();
+
