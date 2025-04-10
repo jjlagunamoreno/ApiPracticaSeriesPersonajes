@@ -15,9 +15,11 @@ namespace ApiPracticaSeriesPersonajes.Controllers
         {
             this.repo = repo;
         }
+
         #region Personajes
         // MOSTRAR PERSONAJES
         [HttpGet("[action]")]
+        [Tags("Personajes")]
         public async Task<ActionResult<List<Personaje>>>
             GetPersonajes()
         {
@@ -25,6 +27,7 @@ namespace ApiPracticaSeriesPersonajes.Controllers
         }
         // BUSCAR PERSONAJE
         [HttpGet("[action]/{id}")]
+        [Tags("Personajes")]
         public async Task<ActionResult<Personaje>>
             FindPersonaje(int id)
         {
@@ -32,6 +35,7 @@ namespace ApiPracticaSeriesPersonajes.Controllers
         }
         // MOVER PERSONAJE DE UNA SERIE A OTRA
         [HttpPut("[action]/{idPersonaje}/{idSerieNuevo}")]
+        [Tags("Personajes")]
         public async Task<ActionResult> MovePersonajeToSerie(int idPersonaje, int idSerieNuevo)
         {
             var personaje = await this.repo.FindPersonajeAsync(idPersonaje);
@@ -45,6 +49,7 @@ namespace ApiPracticaSeriesPersonajes.Controllers
 
         // DELETE PERSONAJE
         [HttpDelete("[action]/{id}")]
+        [Tags("Personajes")]
         public async Task<ActionResult> DeletePersonaje(int id)
         {
             //PODEMOS PERSONALIZAR LA RESPUESTA
@@ -62,55 +67,47 @@ namespace ApiPracticaSeriesPersonajes.Controllers
         #endregion
 
         #region Series
+        // TODAS LAS SERIES
         [HttpGet("[action]")]
+        [Tags("Series")]
         public async Task<ActionResult<List<Serie>>>
             GetSeries()
         {
             return await this.repo.GetSeriesAsync();
         }
-
+        // BUSCAR UNA SERIE POR ID
         [HttpGet("[action]/{id}")]
+        [Tags("Series")]
         public async Task<ActionResult<Serie>>
             FindSerie(int id)
         {
             return await this.repo.FindSerieAsync(id);
         }
-        #endregion
+        // BUSCAR PERSONAJES POR SERIE
+        [HttpGet("[action]/{idSerie}")]
+        [Tags("Series")]
+        public async Task<ActionResult<List<Personaje>>> GetPersonajesBySerie(int idSerie)
+        {
+            var personajes = await this.repo.GetPersonajesBySerieAsync(idSerie);
+            if (personajes == null || personajes.Count == 0)
+            {
+                return NotFound($"No hay personajes en la serie: {idSerie}");
+            }
+            return personajes;
+        }
+        // BUSCAR PERSONAJES DE VARIAS SERIES
+        [HttpPost("[action]")]
+        [Tags("Series")]
+        public async Task<ActionResult<List<Personaje>>> GetPersonajesBySeries([FromBody] List<int> idsSerie)
+        {
+            var personajes = await this.repo.GetPersonajesBySeriesAsync(idsSerie);
+            if (personajes == null || personajes.Count == 0)
+            {
+                return NotFound("No se encontraron personajes para los Ids de serie proporcionados.");
+            }
+            return personajes;
+        }
 
-        #region Comentarios
-        //[HttpGet("[action]")]
-        //public async Task<ActionResult<List<string>>>
-        //    GetSeries()
-        //{
-        //    return await this.repo.GetSeries();
-        //}
-
-        //[HttpGet("[action]/{serie}")]
-        //public async Task<ActionResult<List<Personaje>>>
-        //    GetPersonajesSerie(string serie)
-        //{
-        //    return await this.repo.GetPersonajesSeriesAsync(serie);
-        //}
-
-        //[HttpPost("[action]")]
-        //public async Task<ActionResult> PostPersonaje
-        //    (Personaje personaje)
-        //{
-        //    int lastId = await repo.GetUltimoId() + 1;
-
-        //    personaje.IdPersonaje = lastId;
-
-        //    await this.repo.InsertPersonajeAsync(personaje);
-        //    return Ok();
-        //}
-
-        //[HttpPut("[action]")]
-        //public async Task<ActionResult> PutPersonaje
-        //    (Personaje personaje)
-        //{
-        //    await this.repo.UpdatePersonajeAsync(personaje);
-        //    return Ok();
-        //}
         #endregion
 
     }
